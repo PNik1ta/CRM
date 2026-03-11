@@ -72,9 +72,69 @@ async function updateStudent(req, res, next) {
   }
 }
 
+async function getStudentLessons(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const studentResult = await pool.query('SELECT id FROM students WHERE id = $1', [id]);
+
+    if (!studentResult.rows.length) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const { rows } = await pool.query(
+      'SELECT * FROM lessons WHERE student_id = $1 ORDER BY start_at ASC',
+      [id]
+    );
+
+    return res.json(rows);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function getStudentTimeline(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const studentResult = await pool.query('SELECT id FROM students WHERE id = $1', [id]);
+
+    if (!studentResult.rows.length) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const [lessonsResult, paymentsResult] = await Promise.all([
+      pool.query('SELECT * FROM lessons WHERE student_id = $1', [id]),
+      pool.query('SELECT * FROM payments WHERE student_id = $1', [id]),
+    ]);
+
+    const lessonEvents = lessonsResult.rows.map((lesson) => ({
+      type: 'lesson',
+      date: lesson.start_at,
+      data: lesson,
+    }));
+
+    const paymentEvents = paymentsResult.rows.map((payment) => ({
+      type: 'payment',
+      date: payment.paid_at,
+      data: payment,
+    }));
+
+    const timeline = [...lessonEvents, ...paymentEvents].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+
+    return res.json(timeline);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getStudents,
   createStudent,
   getStudentById,
   updateStudent,
+  getStudentLessons,
+  getStudentTimeline,
 };
