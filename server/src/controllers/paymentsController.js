@@ -1,41 +1,59 @@
 const pool = require('../db/pool');
 
-async function getPayments(req, res, next) {
+async function createPayment(req, res, next) {
   try {
-    const { rows } = await pool.query('SELECT * FROM payments ORDER BY paid_at DESC');
-    res.json(rows);
+    const { student_id, amount, paid_at, method, notes } = req.body;
+
+    const studentResult = await pool.query('SELECT id FROM students WHERE id = $1', [student_id]);
+
+    if (!studentResult.rows.length) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO payments (
+        student_id,
+        amount,
+        paid_at,
+        method,
+        notes
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *`,
+      [student_id, amount, paid_at, method, notes]
+    );
+
+    return res.status(201).json(rows[0]);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
-async function createPayment(req, res, next) {
+async function getStudentPayments(req, res, next) {
   try {
-    const {
-      student_id,
-      lesson_id,
-      amount,
-      currency,
-      method,
-      paid_at,
-      status,
-      note,
-    } = req.body;
+    const { id } = req.params;
+
+    const studentResult = await pool.query('SELECT id FROM students WHERE id = $1', [id]);
+
+    if (!studentResult.rows.length) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
 
     const { rows } = await pool.query(
-      `INSERT INTO payments (student_id, lesson_id, amount, currency, method, paid_at, status, note)
-       VALUES ($1, $2, $3, COALESCE($4, 'USD'), $5, $6, COALESCE($7, 'received'), $8)
-       RETURNING *`,
-      [student_id, lesson_id || null, amount, currency, method, paid_at, status, note]
+      `SELECT *
+      FROM payments
+      WHERE student_id = $1
+      ORDER BY paid_at DESC`,
+      [id]
     );
 
-    res.status(201).json(rows[0]);
+    return res.json(rows);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 }
 
 module.exports = {
-  getPayments,
   createPayment,
+  getStudentPayments,
 };
