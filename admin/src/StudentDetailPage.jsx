@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { fetchJson, getStudentDisplayName, postJson } from './api';
+import TimelineItem from './TimelineItem';
 
 const initialLessonForm = {
   start_at: '',
@@ -10,21 +11,6 @@ const initialLessonForm = {
   price: '',
   notes: '',
 };
-
-function TimelineItem({ event }) {
-  return (
-    <li style={{ marginBottom: '12px' }}>
-      <div><strong>Тип:</strong> {event.type}</div>
-      <div><strong>Дата:</strong> {new Date(event.date).toLocaleString()}</div>
-      <div>
-        <strong>Данные:</strong>
-        <pre style={{ margin: '6px 0 0', padding: '8px', background: '#f4f4f4' }}>
-          {JSON.stringify(event.data, null, 2)}
-        </pre>
-      </div>
-    </li>
-  );
-}
 
 export default function StudentDetailPage() {
   const { id } = useParams();
@@ -39,7 +25,7 @@ export default function StudentDetailPage() {
 
   async function loadTimeline() {
     const timelineData = await fetchJson(`/api/students/${id}/timeline`);
-    setTimeline(timelineData.filter((item) => item.type === 'lesson' || item.type === 'payment'));
+    setTimeline(timelineData);
   }
 
   useEffect(() => {
@@ -81,6 +67,7 @@ export default function StudentDetailPage() {
 
       await loadTimeline();
       setLessonForm(initialLessonForm);
+      setShowLessonForm(false);
     } catch (err) {
       setLessonError(err.message);
     } finally {
@@ -112,7 +99,18 @@ export default function StudentDetailPage() {
       <div><strong>Статус:</strong> {student.status || '-'}</div>
 
       <div style={{ marginTop: '16px' }}>
-        <button type="button" onClick={() => setShowLessonForm((prev) => !prev)}>
+        <button
+          type="button"
+          onClick={() => {
+            setShowLessonForm((prev) => {
+              if (!prev) {
+                setLessonError('');
+              }
+
+              return !prev;
+            });
+          }}
+        >
           Добавить урок
         </button>
       </div>
