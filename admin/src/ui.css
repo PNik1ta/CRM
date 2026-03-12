@@ -25,6 +25,16 @@
   background: var(--primary-hover);
 }
 
+.button-secondary {
+  background: #eef2f7;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.button-secondary:hover {
+  background: #e2e8f0;
+}
+
 
 /* Danger button */
 
@@ -233,4 +243,46 @@
 h3 {
   margin-top: 24px;
   margin-bottom: 12px;
+}
+
+
+.input-error {
+  border-color: var(--danger);
+}
+
+.error-text {
+  margin-top: 4px;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon-button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 420px;
 }

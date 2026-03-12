@@ -6,14 +6,22 @@ function formatDate(value) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '-';
+    return value;
   }
 
   return date.toLocaleString();
 }
 
-export default function TimelineItem({ event, onDelete, onEdit }) {
-  const icon = event.type === 'lesson' ? '📚' : '💳';
+function formatMoney(value) {
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+
+  return `${value} ₼`;
+}
+
+export default function TimelineItem({ event, onEdit, onDelete }) {
+  const icon = event.type === 'lesson' ? '📘' : event.type === 'payment' ? '💰' : '🗂️';
 
   if (event.type === 'lesson') {
     return (
@@ -22,19 +30,23 @@ export default function TimelineItem({ event, onDelete, onEdit }) {
         <div>Дата: {formatDate(event.data?.start_at || event.date)}</div>
         <div>Предмет: {event.data?.subject || '-'}</div>
         <div>Формат: {event.data?.format || '-'}</div>
-        <div>Цена: {event.data?.price ?? '-'}</div>
-        <button
-          type="button"
-          onClick={() => onEdit && onEdit(event)}
-        >
-          Редактировать
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete && onDelete(event.id, 'lesson')}
-        >
-          Удалить
-        </button>
+        <div>Цена: {formatMoney(event.data?.price)}</div>
+        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => onEdit && onEdit(event)}
+          >
+            Редактировать
+          </button>
+          <button
+            className="button button-danger"
+            type="button"
+            onClick={() => onDelete && onDelete(event.id, 'lesson')}
+          >
+            Удалить
+          </button>
+        </div>
       </div>
     );
   }
@@ -44,20 +56,24 @@ export default function TimelineItem({ event, onDelete, onEdit }) {
       <div>
         <div><strong><span style={{ marginRight: 6 }}>{icon}</span>Оплата</strong></div>
         <div>Дата: {formatDate(event.data?.paid_at || event.date)}</div>
-        <div>Сумма: {event.data?.amount ?? '-'}</div>
+        <div>Сумма: {formatMoney(event.data?.amount)}</div>
         <div>Метод: {event.data?.method || '-'}</div>
-        <button
-          type="button"
-          onClick={() => onEdit && onEdit(event)}
-        >
-          Редактировать
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete && onDelete(event.id, 'payment')}
-        >
-          Удалить
-        </button>
+        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => onEdit && onEdit(event)}
+          >
+            Редактировать
+          </button>
+          <button
+            className="button button-danger"
+            type="button"
+            onClick={() => onDelete && onDelete(event.id, 'payment')}
+          >
+            Удалить
+          </button>
+        </div>
       </div>
     );
   }
