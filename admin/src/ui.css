@@ -286,3 +286,38 @@ h3 {
   width: 100%;
   max-width: 420px;
 }
+
+.analytics-periods {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.analytics-custom-range {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.analytics-custom-range label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.analytics-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-chart h3 {
+  margin-top: 0;
+}
+
+.analytics-empty {
+  color: var(--text-secondary);
+  font-size: 14px;
+}

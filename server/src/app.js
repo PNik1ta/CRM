@@ -6,6 +6,7 @@ const studentsRoutes = require('./routes/students');
 const lessonsRoutes = require('./routes/lessons');
 const paymentsRoutes = require('./routes/paymentsRoutes');
 const leadsRoutes = require('./routes/leads');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/students', studentsRoutes);
 app.use('/api/lessons', lessonsRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
