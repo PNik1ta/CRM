@@ -12,7 +12,7 @@ function formatDate(value) {
   return date.toLocaleString();
 }
 
-export default function TimelineItem({ event, onDelete }) {
+export default function TimelineItem({ event, onDelete, onEdit }) {
   if (event.type === 'lesson') {
     return (
       <li style={{ marginBottom: '12px' }}>
@@ -21,6 +21,12 @@ export default function TimelineItem({ event, onDelete }) {
         <div>Предмет: {event.data?.subject || '-'}</div>
         <div>Формат: {event.data?.format || '-'}</div>
         <div>Цена: {event.data?.price ?? '-'}</div>
+        <button
+          type="button"
+          onClick={() => onEdit && onEdit(event)}
+        >
+          Редактировать
+        </button>
         <button
           type="button"
           onClick={() => onDelete && onDelete(event.id, 'lesson')}
