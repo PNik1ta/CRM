@@ -53,7 +53,27 @@ async function getStudentPayments(req, res, next) {
   }
 }
 
+async function deletePayment(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM payments WHERE id = $1 RETURNING id',
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   createPayment,
   getStudentPayments,
+  deletePayment,
 };

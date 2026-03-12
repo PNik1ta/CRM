@@ -14,8 +14,8 @@ export async function requestJson(url, options = {}) {
   return response.json();
 }
 
-export async function fetchJson(url) {
-  return requestJson(url);
+export async function fetchJson(url, options = {}) {
+  return requestJson(url, options);
 }
 
 export async function postJson(url, payload) {

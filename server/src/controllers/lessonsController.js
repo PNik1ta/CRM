@@ -35,7 +35,27 @@ async function createLesson(req, res, next) {
   }
 }
 
+async function deleteLesson(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM lessons WHERE id = $1 RETURNING id',
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getLessons,
   createLesson,
+  deleteLesson,
 };
