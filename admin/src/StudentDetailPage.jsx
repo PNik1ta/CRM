@@ -332,10 +332,9 @@ export default function StudentDetailPage() {
 
       {showLessonForm && (
         <form onSubmit={handleLessonSubmit} style={{ marginTop: '12px' }}>
-          <div>
-            <label htmlFor="start_at">Дата начала (start_at)</label>
-            <br />
-            <input
+          <div className="form-group">
+            <label className="form-label" htmlFor="start_at">Дата начала (start_at)</label>
+            <input className="input"
               id="start_at"
               name="start_at"
               type="datetime-local"
@@ -345,10 +344,9 @@ export default function StudentDetailPage() {
             />
           </div>
 
-          <div>
-            <label htmlFor="end_at">Дата окончания (end_at)</label>
-            <br />
-            <input
+          <div className="form-group">
+            <label className="form-label" htmlFor="end_at">Дата окончания (end_at)</label>
+            <input className="input"
               id="end_at"
               name="end_at"
               type="datetime-local"
@@ -357,35 +355,31 @@ export default function StudentDetailPage() {
             />
           </div>
 
-          <div>
-            <label htmlFor="subject">Предмет (subject)</label>
-            <br />
-            <input id="subject" name="subject" value={lessonForm.subject} onChange={handleLessonChange} />
+          <div className="form-group">
+            <label className="form-label" htmlFor="subject">Предмет (subject)</label>
+            <input className="input" id="subject" name="subject" value={lessonForm.subject} onChange={handleLessonChange} />
           </div>
 
-          <div>
-            <label htmlFor="format">Формат (format)</label>
-            <br />
-            <select id="format" name="format" value={lessonForm.format} onChange={handleLessonChange}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="format">Формат (format)</label>
+            <select className="select" id="format" name="format" value={lessonForm.format} onChange={handleLessonChange}>
               <option value="online">online</option>
               <option value="offline">offline</option>
             </select>
           </div>
 
-          <div>
-            <label htmlFor="price">Цена (price)</label>
-            <br />
-            <input id="price" name="price" type="number" min="0" value={lessonForm.price} onChange={handleLessonChange} />
+          <div className="form-group">
+            <label className="form-label" htmlFor="price">Цена (price)</label>
+            <input className="input" id="price" name="price" type="number" min="0" value={lessonForm.price} onChange={handleLessonChange} />
           </div>
 
-          <div>
-            <label htmlFor="notes">Заметки (notes)</label>
-            <br />
-            <input id="notes" name="notes" value={lessonForm.notes} onChange={handleLessonChange} />
+          <div className="form-group">
+            <label className="form-label" htmlFor="notes">Заметки (notes)</label>
+            <input className="input" id="notes" name="notes" value={lessonForm.notes} onChange={handleLessonChange} />
           </div>
 
           <div style={{ marginTop: '10px' }}>
-            <button type="submit" disabled={isSubmittingLesson}>
+            <button className="button" type="submit" disabled={isSubmittingLesson}>
               {isSubmittingLesson ? 'Сохранение...' : 'Сохранить урок'}
             </button>
           </div>
@@ -396,10 +390,9 @@ export default function StudentDetailPage() {
 
       {showPaymentForm && (
         <form onSubmit={handlePaymentSubmit} style={{ marginTop: '12px' }}>
-          <div>
-            <label htmlFor="amount">Сумма (amount)</label>
-            <br />
-            <input
+          <div className="form-group">
+            <label className="form-label" htmlFor="amount">Сумма (amount)</label>
+            <input className="input"
               id="amount"
               name="amount"
               type="number"
@@ -410,10 +403,9 @@ export default function StudentDetailPage() {
             />
           </div>
 
-          <div>
-            <label htmlFor="method">Метод (method)</label>
-            <br />
-            <select
+          <div className="form-group">
+            <label className="form-label" htmlFor="method">Метод (method)</label>
+            <select className="select"
               id="method"
               name="method"
               value={paymentForm.method}
@@ -425,10 +417,9 @@ export default function StudentDetailPage() {
             </select>
           </div>
 
-          <div>
-            <label htmlFor="paid_at">Дата оплаты (paid_at)</label>
-            <br />
-            <input
+          <div className="form-group">
+            <label className="form-label" htmlFor="paid_at">Дата оплаты (paid_at)</label>
+            <input className="input"
               id="paid_at"
               name="paid_at"
               type="datetime-local"
@@ -438,10 +429,9 @@ export default function StudentDetailPage() {
             />
           </div>
 
-          <div>
-            <label htmlFor="payment_notes">Заметки (notes)</label>
-            <br />
-            <textarea
+          <div className="form-group">
+            <label className="form-label" htmlFor="payment_notes">Заметки (notes)</label>
+            <textarea className="input"
               id="payment_notes"
               name="notes"
               value={paymentForm.notes}
@@ -450,7 +440,7 @@ export default function StudentDetailPage() {
           </div>
 
           <div style={{ marginTop: '10px' }}>
-            <button type="submit" disabled={isSubmittingPayment}>
+            <button className="button" type="submit" disabled={isSubmittingPayment}>
               {isSubmittingPayment ? 'Сохранение...' : 'Сохранить оплату'}
             </button>
           </div>
@@ -459,21 +449,26 @@ export default function StudentDetailPage() {
         </form>
       )}
 
-      <h3 style={{ marginTop: '20px' }}>Timeline</h3>
-      {timeline.length === 0 ? (
-        <div>Событий пока нет.</div>
-      ) : (
-        <ul style={{ paddingLeft: '20px' }}>
-          {timeline.map((event) => (
-            <TimelineItem
+      <h3>Timeline</h3>
+
+      <div className="timeline">
+        {timeline.length === 0 ? (
+          <div className="timeline-meta">Событий пока нет</div>
+        ) : (
+          timeline.map((event) => (
+            <div
               key={`${event.type}-${event.id}`}
-              event={event}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-            />
-          ))}
-        </ul>
-      )}
+              className="timeline-item"
+            >
+              <TimelineItem
+                event={event}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+              />
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

@@ -13,10 +13,12 @@ function formatDate(value) {
 }
 
 export default function TimelineItem({ event, onDelete, onEdit }) {
+  const icon = event.type === 'lesson' ? '📚' : '💳';
+
   if (event.type === 'lesson') {
     return (
-      <li style={{ marginBottom: '12px' }}>
-        <div><strong>📚 Урок</strong></div>
+      <div>
+        <div><strong><span style={{ marginRight: 6 }}>{icon}</span>Урок</strong></div>
         <div>Дата: {formatDate(event.data?.start_at || event.date)}</div>
         <div>Предмет: {event.data?.subject || '-'}</div>
         <div>Формат: {event.data?.format || '-'}</div>
@@ -33,14 +35,14 @@ export default function TimelineItem({ event, onDelete, onEdit }) {
         >
           Удалить
         </button>
-      </li>
+      </div>
     );
   }
 
   if (event.type === 'payment') {
     return (
-      <li style={{ marginBottom: '12px' }}>
-        <div><strong>💰 Оплата</strong></div>
+      <div>
+        <div><strong><span style={{ marginRight: 6 }}>{icon}</span>Оплата</strong></div>
         <div>Дата: {formatDate(event.data?.paid_at || event.date)}</div>
         <div>Сумма: {event.data?.amount ?? '-'}</div>
         <div>Метод: {event.data?.method || '-'}</div>
@@ -56,14 +58,14 @@ export default function TimelineItem({ event, onDelete, onEdit }) {
         >
           Удалить
         </button>
-      </li>
+      </div>
     );
   }
 
   return (
-    <li style={{ marginBottom: '12px' }}>
-      <div><strong>Тип:</strong> {event.type}</div>
+    <div>
+      <div><strong><span style={{ marginRight: 6 }}>{icon}</span>Тип:</strong> {event.type}</div>
       <div><strong>Дата:</strong> {new Date(event.date).toLocaleString()}</div>
-    </li>
+    </div>
   );
 }
