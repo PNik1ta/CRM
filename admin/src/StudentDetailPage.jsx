@@ -244,8 +244,14 @@ export default function StudentDetailPage() {
 
   return (
     <div>
+      <div className="breadcrumb">
+        <Link to="/students">Ученики</Link> / {getStudentDisplayName(student)}
+      </div>
+
       <div style={{ marginBottom: '12px' }}>
-        <Link to="/students">← Назад к списку</Link>
+        <Link className="back-link" to="/students">
+          ← Назад к списку
+        </Link>
       </div>
 
       <h3>Student card</h3>
@@ -290,8 +296,9 @@ export default function StudentDetailPage() {
       </div>
 
       <h3>Actions</h3>
-      <div style={{ marginTop: '16px' }}>
+      <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
         <button
+          className="button"
           type="button"
           onClick={() => {
             setShowLessonForm((prev) => {
@@ -307,8 +314,8 @@ export default function StudentDetailPage() {
         </button>
 
         <button
+          className="button"
           type="button"
-          style={{ marginLeft: '8px' }}
           onClick={() => {
             setShowPaymentForm((prev) => {
               if (!prev) {
