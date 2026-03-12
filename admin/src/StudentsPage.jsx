@@ -76,7 +76,12 @@ export default function StudentsPage() {
   }
 
   return (
-    <div className="card">
+    <>
+      <div className="breadcrumb">
+        CRM Admin / Ученики
+      </div>
+
+      <div className="card">
       <h2>Список учеников</h2>
 
       <button className="button" type="button" onClick={() => setShowCreateForm((prev) => !prev)}>
@@ -173,6 +178,7 @@ export default function StudentsPage() {
           )}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
