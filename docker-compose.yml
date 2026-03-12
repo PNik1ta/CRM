@@ -21,6 +21,7 @@ services:
       - ./schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
       - ./002_schema_improvements.sql:/docker-entrypoint-initdb.d/002_schema_improvements.sql:ro
       - ./003_student_activity_indexes.sql:/docker-entrypoint-initdb.d/003_student_activity_indexes.sql:ro
+      - ./004_seed_data.sql:/docker-entrypoint-initdb.d/004_seed_data.sql:ro
 
   backend:
     build: ./server
