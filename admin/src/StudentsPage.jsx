@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchJson, getStudentDisplayName, postJson } from './api';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 const initialForm = {
   first_name: '',
@@ -278,6 +279,9 @@ export default function StudentsPage() {
         </tbody>
       </table>
       </div>
+
+      <AnalyticsDashboard />
+
       {pendingDeleteStudentId && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal-content card">
