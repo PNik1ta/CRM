@@ -53,6 +53,35 @@ async function getStudentPayments(req, res, next) {
   }
 }
 
+
+async function updatePayment(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { amount, method, paid_at, notes } = req.body;
+
+    const { rows } = await pool.query(
+      `
+      UPDATE payments
+      SET amount=$1,
+          method=$2,
+          paid_at=$3,
+          notes=$4
+      WHERE id=$5
+      RETURNING *
+      `,
+      [amount, method, paid_at, notes, id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    return res.json(rows[0]);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function deletePayment(req, res, next) {
   try {
     const { id } = req.params;
@@ -75,5 +104,6 @@ async function deletePayment(req, res, next) {
 module.exports = {
   createPayment,
   getStudentPayments,
+  updatePayment,
   deletePayment,
 };

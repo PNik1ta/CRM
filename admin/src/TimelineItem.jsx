@@ -46,6 +46,12 @@ export default function TimelineItem({ event, onDelete, onEdit }) {
         <div>Метод: {event.data?.method || '-'}</div>
         <button
           type="button"
+          onClick={() => onEdit && onEdit(event)}
+        >
+          Редактировать
+        </button>
+        <button
+          type="button"
           onClick={() => onDelete && onDelete(event.id, 'payment')}
         >
           Удалить
