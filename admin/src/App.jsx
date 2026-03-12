@@ -13,8 +13,10 @@ export default function App() {
       }}
     >
       <h1>CRM Admin</h1>
-      <div style={{ marginBottom: '12px' }}>
-        <Link to="/students">Ученики</Link>
+      <div style={{ marginBottom: '20px' }}>
+        <Link className="nav-link" to="/students">
+          Ученики
+        </Link>
       </div>
 
       <Routes>
