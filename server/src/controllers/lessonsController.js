@@ -1,4 +1,11 @@
 const pool = require('../db/pool');
+const {
+  LESSON_FORMATS,
+  LESSON_STATUSES,
+  isValidDateString,
+  normalizeString,
+  assertEnumValue,
+} = require('../utils/validation');
 
 async function getLessons(req, res, next) {
   try {
@@ -26,11 +33,39 @@ async function createLesson(req, res, next) {
       return res.status(400).json({ error: 'student_id is required' });
     }
 
+    if (!start_at || !end_at) {
+      return res.status(400).json({ error: 'start_at and end_at are required' });
+    }
+
+    if (!isValidDateString(start_at) || !isValidDateString(end_at)) {
+      return res.status(400).json({ error: 'start_at and end_at must be valid ISO date strings' });
+    }
+
+    if (new Date(end_at) <= new Date(start_at)) {
+      return res.status(400).json({ error: 'end_at must be later than start_at' });
+    }
+
+    const formatError = assertEnumValue(format, LESSON_FORMATS, 'format');
+    if (formatError) {
+      return res.status(400).json({ error: formatError });
+    }
+
+    const statusError = assertEnumValue(status, LESSON_STATUSES, 'status');
+    if (statusError) {
+      return res.status(400).json({ error: statusError });
+    }
+
+    const normalizedPrice = price == null || price === '' ? null : Number(price);
+
+    if (normalizedPrice != null && (!Number.isFinite(normalizedPrice) || normalizedPrice < 0)) {
+      return res.status(400).json({ error: 'price must be a non-negative number' });
+    }
+
     const { rows } = await pool.query(
       `INSERT INTO lessons (student_id, start_at, end_at, subject, format, status, price, notes)
        VALUES ($1, $2, $3, $4, $5::lesson_format, COALESCE($6::lesson_status, 'planned'::lesson_status), $7, $8)
        RETURNING *`,
-      [student_id, start_at, end_at, subject, format, status, price, notes]
+      [student_id, start_at, end_at, normalizeString(subject), format, status, normalizedPrice, normalizeString(notes)]
     );
 
     res.status(201).json(rows[0]);
@@ -52,6 +87,28 @@ async function updateLesson(req, res, next) {
       notes,
     } = req.body;
 
+    if (!start_at || !end_at) {
+      return res.status(400).json({ error: 'start_at and end_at are required' });
+    }
+
+    if (!isValidDateString(start_at) || !isValidDateString(end_at)) {
+      return res.status(400).json({ error: 'start_at and end_at must be valid ISO date strings' });
+    }
+
+    if (new Date(end_at) <= new Date(start_at)) {
+      return res.status(400).json({ error: 'end_at must be later than start_at' });
+    }
+
+    const formatError = assertEnumValue(format, LESSON_FORMATS, 'format');
+    if (formatError) {
+      return res.status(400).json({ error: formatError });
+    }
+    const normalizedPrice = price == null || price === '' ? null : Number(price);
+
+    if (normalizedPrice != null && (!Number.isFinite(normalizedPrice) || normalizedPrice < 0)) {
+      return res.status(400).json({ error: 'price must be a non-negative number' });
+    }
+
     const { rows } = await pool.query(
       `
       UPDATE lessons
@@ -64,7 +121,7 @@ async function updateLesson(req, res, next) {
       WHERE id=$7
       RETURNING *
       `,
-      [start_at, end_at, subject, format, price, notes, id]
+      [start_at, end_at, normalizeString(subject), format, normalizedPrice, normalizeString(notes), id]
     );
 
     if (!rows.length) {

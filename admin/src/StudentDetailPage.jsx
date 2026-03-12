@@ -23,6 +23,35 @@ function formatMoney(value) {
   return `${Number(value || 0)} ₼`;
 }
 
+function toIsoString(localDateTime) {
+  if (!localDateTime) {
+    return null;
+  }
+
+  const parsed = new Date(localDateTime);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString();
+}
+
+function toDateTimeLocalValue(isoDateTime) {
+  if (!isoDateTime) {
+    return '';
+  }
+
+  const parsed = new Date(isoDateTime);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+
+  const local = new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
 export default function StudentDetailPage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
@@ -120,30 +149,39 @@ export default function StudentDetailPage() {
       return;
     }
 
+    const startAtIso = toIsoString(lessonForm.start_at);
+    const endAtIso = toIsoString(lessonForm.end_at);
+
+    if (!startAtIso || !endAtIso) {
+      setLessonError('Укажите корректные start_at и end_at');
+      setIsSubmittingLesson(false);
+      return;
+    }
+
+    if (new Date(endAtIso) <= new Date(startAtIso)) {
+      setLessonError('end_at должен быть позже start_at');
+      setIsSubmittingLesson(false);
+      return;
+    }
+
+    const lessonPayload = {
+      student_id: studentIdFromRoute,
+      start_at: startAtIso,
+      end_at: endAtIso,
+      subject: lessonForm.subject,
+      format: lessonForm.format,
+      price: lessonForm.price ? Number(lessonForm.price) : null,
+      notes: lessonForm.notes,
+    };
+
     try {
       if (editingLessonId) {
         await fetchJson(`/api/lessons/${editingLessonId}`, {
           method: 'PUT',
-          body: JSON.stringify({
-            student_id: studentIdFromRoute,
-            start_at: new Date(lessonForm.start_at).toISOString(),
-            end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
-            subject: lessonForm.subject,
-            format: lessonForm.format,
-            price: lessonForm.price ? Number(lessonForm.price) : null,
-            notes: lessonForm.notes,
-          }),
+          body: JSON.stringify(lessonPayload),
         });
       } else {
-        await postJson('/api/lessons', {
-          student_id: studentIdFromRoute,
-          start_at: new Date(lessonForm.start_at).toISOString(),
-          end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
-          subject: lessonForm.subject,
-          format: lessonForm.format,
-          price: lessonForm.price ? Number(lessonForm.price) : null,
-          notes: lessonForm.notes,
-        });
+        await postJson('/api/lessons', lessonPayload);
       }
 
       await loadTimeline();
@@ -161,8 +199,8 @@ export default function StudentDetailPage() {
       setEditingLessonId(event.id);
 
       setLessonForm({
-        start_at: event.data?.start_at || '',
-        end_at: event.data?.end_at || '',
+        start_at: toDateTimeLocalValue(event.data?.start_at),
+        end_at: toDateTimeLocalValue(event.data?.end_at),
         subject: event.data?.subject || '',
         format: event.data?.format || 'online',
         price: event.data?.price || '',
@@ -178,7 +216,7 @@ export default function StudentDetailPage() {
       setPaymentForm({
         amount: event.data?.amount || '',
         method: event.data?.method || 'cash',
-        paid_at: event.data?.paid_at || '',
+        paid_at: toDateTimeLocalValue(event.data?.paid_at),
         notes: event.data?.notes || '',
       });
 
@@ -234,25 +272,30 @@ export default function StudentDetailPage() {
       return;
     }
 
+    const paidAtIso = toIsoString(paymentForm.paid_at);
+
+    if (!paidAtIso) {
+      setPaymentError('Укажите корректный paid_at');
+      setIsSubmittingPayment(false);
+      return;
+    }
+
+    const paymentPayload = {
+      student_id: studentIdFromRoute,
+      amount: Number(paymentForm.amount),
+      method: paymentForm.method,
+      paid_at: paidAtIso,
+      notes: paymentForm.notes,
+    };
+
     try {
       if (editingPaymentId) {
         await fetchJson(`/api/payments/${editingPaymentId}`, {
           method: 'PUT',
-          body: JSON.stringify({
-            amount: Number(paymentForm.amount),
-            method: paymentForm.method,
-            paid_at: new Date(paymentForm.paid_at).toISOString(),
-            notes: paymentForm.notes,
-          }),
+          body: JSON.stringify(paymentPayload),
         });
       } else {
-        await postJson('/api/payments', {
-          student_id: studentIdFromRoute,
-          amount: Number(paymentForm.amount),
-          method: paymentForm.method,
-          paid_at: new Date(paymentForm.paid_at).toISOString(),
-          notes: paymentForm.notes,
-        });
+        await postJson('/api/payments', paymentPayload);
       }
 
       await loadTimeline();
@@ -394,6 +437,7 @@ export default function StudentDetailPage() {
               type="datetime-local"
               value={lessonForm.end_at}
               onChange={handleLessonChange}
+              required
             />
           </div>
 

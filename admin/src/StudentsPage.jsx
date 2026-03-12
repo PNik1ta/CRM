@@ -218,7 +218,7 @@ export default function StudentsPage() {
             <select className="select" id="status" name="status" value={formData.status} onChange={handleChange}>
               <option value="active">active</option>
               <option value="paused">paused</option>
-              <option value="archived">archived</option>
+              <option value="inactive">inactive</option>
             </select>
           </div>
 

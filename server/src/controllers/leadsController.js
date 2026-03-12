@@ -1,4 +1,5 @@
 const pool = require('../db/pool');
+const { LEAD_STATUSES, normalizeString, assertEnumValue } = require('../utils/validation');
 
 async function getLeads(req, res, next) {
   try {
@@ -13,11 +14,20 @@ async function createLead(req, res, next) {
   try {
     const { name, phone, email, message, source, status } = req.body;
 
+    if (!normalizeString(name)) {
+      return res.status(400).json({ error: 'name is required' });
+    }
+
+    const statusError = assertEnumValue(status, LEAD_STATUSES, 'status');
+    if (statusError) {
+      return res.status(400).json({ error: statusError });
+    }
+
     const { rows } = await pool.query(
       `INSERT INTO leads (name, phone, email, message, source, status)
        VALUES ($1, $2, $3, $4, $5, COALESCE($6, 'new'))
        RETURNING *`,
-      [name, phone, email, message, source, status]
+      [normalizeString(name), normalizeString(phone), normalizeString(email), normalizeString(message), normalizeString(source), status]
     );
 
     res.status(201).json(rows[0]);
