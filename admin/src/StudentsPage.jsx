@@ -76,15 +76,16 @@ export default function StudentsPage() {
   }
 
   return (
-    <div>
+    <div className="card">
       <h2>Список учеников</h2>
 
-      <button type="button" onClick={() => setShowCreateForm((prev) => !prev)}>
+      <button className="button" type="button" onClick={() => setShowCreateForm((prev) => !prev)}>
         Создать ученика
       </button>
 
       <div style={{ marginTop: '12px' }}>
         <input
+          className="input"
           type="text"
           placeholder="Поиск ученика..."
           value={search}
@@ -103,31 +104,31 @@ export default function StudentsPage() {
           <div>
             <label htmlFor="first_name">Имя (first_name)</label>
             <br />
-            <input id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} required />
+            <input className="input" id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} required />
           </div>
 
           <div>
             <label htmlFor="last_name">Фамилия (last_name)</label>
             <br />
-            <input id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
+            <input className="input" id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
           </div>
 
           <div>
             <label htmlFor="phone">Телефон (phone)</label>
             <br />
-            <input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
+            <input className="input" id="phone" name="phone" value={formData.phone} onChange={handleChange} />
           </div>
 
           <div>
             <label htmlFor="email">Email (email)</label>
             <br />
-            <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+            <input className="input" id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
           </div>
 
           <div>
             <label htmlFor="status">Статус (status)</label>
             <br />
-            <select id="status" name="status" value={formData.status} onChange={handleChange}>
+            <select className="select" id="status" name="status" value={formData.status} onChange={handleChange}>
               <option value="active">active</option>
               <option value="paused">paused</option>
               <option value="archived">archived</option>
@@ -135,7 +136,7 @@ export default function StudentsPage() {
           </div>
 
           <div style={{ marginTop: '10px' }}>
-            <button type="submit" disabled={isSubmitting}>
+            <button className="button" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Сохранение...' : 'Сохранить ученика'}
             </button>
           </div>
@@ -144,7 +145,7 @@ export default function StudentsPage() {
         </form>
       )}
 
-      <table border="1" cellPadding="8" cellSpacing="0" style={{ width: '100%', maxWidth: '900px' }}>
+      <table className="table">
         <thead>
           <tr>
             <th>Имя</th>
@@ -157,7 +158,7 @@ export default function StudentsPage() {
           {filteredStudents.map((student) => (
             <tr key={student.id}>
               <td>
-                <Link to={`/students/${student.id}`}>{getStudentDisplayName(student)}</Link>
+                <Link className="link" to={`/students/${student.id}`}>{getStudentDisplayName(student)}</Link>
               </td>
               <td>{student.phone || '-'}</td>
               <td>{student.email || '-'}</td>
