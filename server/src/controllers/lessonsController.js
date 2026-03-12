@@ -11,8 +11,8 @@ async function getLessons(req, res, next) {
 
 async function createLesson(req, res, next) {
   try {
+    const { student_id } = req.body;
     const {
-      student_id,
       start_at,
       end_at,
       subject,
@@ -21,6 +21,10 @@ async function createLesson(req, res, next) {
       price,
       notes,
     } = req.body;
+
+    if (!student_id) {
+      return res.status(400).json({ error: 'student_id is required' });
+    }
 
     const { rows } = await pool.query(
       `INSERT INTO lessons (student_id, start_at, end_at, subject, format, status, price, notes)
