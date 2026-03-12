@@ -92,21 +92,36 @@ async function updateStudent(req, res, next) {
 }
 
 async function deleteStudent(req, res, next) {
+  const client = await pool.connect();
+
   try {
     const { id } = req.params;
 
-    const result = await pool.query(
+    await client.query('BEGIN');
+
+    const studentResult = await client.query('SELECT id FROM students WHERE id = $1', [id]);
+
+    if (!studentResult.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    await client.query('DELETE FROM payments WHERE student_id = $1', [id]);
+    await client.query('DELETE FROM lessons WHERE student_id = $1', [id]);
+
+    await client.query(
       'DELETE FROM students WHERE id = $1 RETURNING id',
       [id]
     );
 
-    if (!result.rows.length) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
+    await client.query('COMMIT');
 
     return res.json({ success: true });
   } catch (error) {
+    await client.query('ROLLBACK');
     return next(error);
+  } finally {
+    client.release();
   }
 }
 
