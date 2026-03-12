@@ -53,6 +53,7 @@ export default function StudentDetailPage() {
   const [error, setError] = useState('');
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [lessonForm, setLessonForm] = useState(initialLessonForm);
+  const [editingLessonId, setEditingLessonId] = useState(null);
   const [isSubmittingLesson, setIsSubmittingLesson] = useState(false);
   const [lessonError, setLessonError] = useState('');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -97,18 +98,34 @@ export default function StudentDetailPage() {
     setLessonError('');
 
     try {
-      await postJson('/api/lessons', {
-        student_id: Number(id),
-        start_at: new Date(lessonForm.start_at).toISOString(),
-        end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
-        subject: lessonForm.subject,
-        format: lessonForm.format,
-        price: lessonForm.price ? Number(lessonForm.price) : null,
-        notes: lessonForm.notes,
-      });
+      if (editingLessonId) {
+        await fetchJson(`/api/lessons/${editingLessonId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            student_id: Number(id),
+            start_at: new Date(lessonForm.start_at).toISOString(),
+            end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
+            subject: lessonForm.subject,
+            format: lessonForm.format,
+            price: lessonForm.price ? Number(lessonForm.price) : null,
+            notes: lessonForm.notes,
+          }),
+        });
+      } else {
+        await postJson('/api/lessons', {
+          student_id: Number(id),
+          start_at: new Date(lessonForm.start_at).toISOString(),
+          end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
+          subject: lessonForm.subject,
+          format: lessonForm.format,
+          price: lessonForm.price ? Number(lessonForm.price) : null,
+          notes: lessonForm.notes,
+        });
+      }
 
       await loadTimeline();
       setLessonForm(initialLessonForm);
+      setEditingLessonId(null);
       setShowLessonForm(false);
     } catch (err) {
       setLessonError(err.message);
@@ -122,6 +139,8 @@ export default function StudentDetailPage() {
     if (event.type !== 'lesson') {
       return;
     }
+
+    setEditingLessonId(event.id);
 
     setLessonForm({
       start_at: event.data?.start_at || '',
