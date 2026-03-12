@@ -23,17 +23,6 @@ export default function StudentDetailPage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
   const [timeline, setTimeline] = useState([]);
-  const balance = timeline.reduce((acc, event) => {
-    if (event.type === 'lesson') {
-      return acc - Number(event.data?.price || 0);
-    }
-
-    if (event.type === 'payment') {
-      return acc + Number(event.data?.amount || 0);
-    }
-
-    return acc;
-  }, 0);
   const lessons = timeline.filter((event) => event.type === 'lesson');
   const payments = timeline.filter((event) => event.type === 'payment');
 
@@ -49,6 +38,7 @@ export default function StudentDetailPage() {
     (sum, payment) => sum + Number(payment.data?.amount || 0),
     0,
   );
+  const debt = totalLessonsCost - totalPaid;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showLessonForm, setShowLessonForm] = useState(false);
@@ -254,21 +244,19 @@ export default function StudentDetailPage() {
           <div><strong>Total lessons cost:</strong> {totalLessonsCost}</div>
           <div><strong>Total paid:</strong> {totalPaid}</div>
         </div>
-        <div
-          style={{
-            marginTop: '10px',
-            fontWeight: 'bold',
-            color: balance < 0 ? 'red' : balance > 0 ? 'green' : 'black',
-          }}
-        >
-          Баланс: {balance}
-        </div>
-
-        {balance < 0 && (
-          <div style={{ color: 'red', marginTop: '4px' }}>
-            Долг ученика: {Math.abs(balance)}
+        <div style={{ marginTop: '20px' }}>
+          <h3>Финансы ученика</h3>
+          <div>Всего уроков: {totalLessonsCost}</div>
+          <div>Оплачено: {totalPaid}</div>
+          <div
+            style={{
+              color: debt > 0 ? 'red' : 'green',
+              fontWeight: 'bold',
+            }}
+          >
+            {debt > 0 ? 'Долг' : 'Переплата'}: {Math.abs(debt)}
           </div>
-        )}
+        </div>
       </div>
 
       <h3>Actions</h3>
