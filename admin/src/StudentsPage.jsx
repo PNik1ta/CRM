@@ -106,33 +106,38 @@ export default function StudentsPage() {
 
       {showCreateForm && (
         <form onSubmit={handleSubmit} style={{ marginTop: '12px', marginBottom: '16px' }}>
-          <div>
-            <label htmlFor="first_name">Имя (first_name)</label>
-            <br />
+          <div className="form-group">
+            <label className="form-label" htmlFor="first_name">
+              Имя
+            </label>
             <input className="input" id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} required />
           </div>
 
-          <div>
-            <label htmlFor="last_name">Фамилия (last_name)</label>
-            <br />
+          <div className="form-group">
+            <label className="form-label" htmlFor="last_name">
+              Фамилия
+            </label>
             <input className="input" id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
           </div>
 
-          <div>
-            <label htmlFor="phone">Телефон (phone)</label>
-            <br />
+          <div className="form-group">
+            <label className="form-label" htmlFor="phone">
+              Телефон
+            </label>
             <input className="input" id="phone" name="phone" value={formData.phone} onChange={handleChange} />
           </div>
 
-          <div>
-            <label htmlFor="email">Email (email)</label>
-            <br />
+          <div className="form-group">
+            <label className="form-label" htmlFor="email">
+              Email
+            </label>
             <input className="input" id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
           </div>
 
-          <div>
-            <label htmlFor="status">Статус (status)</label>
-            <br />
+          <div className="form-group">
+            <label className="form-label" htmlFor="status">
+              Статус
+            </label>
             <select className="select" id="status" name="status" value={formData.status} onChange={handleChange}>
               <option value="active">active</option>
               <option value="paused">paused</option>
@@ -167,7 +172,11 @@ export default function StudentsPage() {
               </td>
               <td>{student.phone || '-'}</td>
               <td>{student.email || '-'}</td>
-              <td>{student.status || '-'}</td>
+              <td>
+                <span className={`badge badge-${student.status}`}>
+                  {student.status}
+                </span>
+              </td>
             </tr>
           ))}
 

@@ -52,6 +52,17 @@
   border-color: var(--primary);
 }
 
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 /* Link */
 
 .link {
@@ -94,6 +105,33 @@
 .table th {
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+.table tr:hover {
+  background: #f8fafc;
+}
+
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-active {
+  background: #e7f6ed;
+  color: #1a7f37;
+}
+
+.badge-paused {
+  background: #fff3cd;
+  color: #9a6700;
+}
+
+.badge-archived {
+  background: #f1f1f1;
+  color: #666;
 }
 
 /* Top navigation */
