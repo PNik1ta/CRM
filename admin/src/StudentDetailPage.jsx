@@ -50,6 +50,7 @@ export default function StudentDetailPage() {
   const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
   const [paymentError, setPaymentError] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [editingPaymentId, setEditingPaymentId] = useState(null);
 
   async function loadTimeline() {
     const timelineData = await fetchJson(`/api/students/${id}/timeline`);
@@ -126,22 +127,33 @@ export default function StudentDetailPage() {
 
 
   function handleEdit(event) {
-    if (event.type !== 'lesson') {
-      return;
+    if (event.type === 'lesson') {
+      setEditingLessonId(event.id);
+
+      setLessonForm({
+        start_at: event.data?.start_at || '',
+        end_at: event.data?.end_at || '',
+        subject: event.data?.subject || '',
+        format: event.data?.format || 'online',
+        price: event.data?.price || '',
+        notes: event.data?.notes || '',
+      });
+
+      setShowLessonForm(true);
     }
 
-    setEditingLessonId(event.id);
+    if (event.type === 'payment') {
+      setEditingPaymentId(event.id);
 
-    setLessonForm({
-      start_at: event.data?.start_at || '',
-      end_at: event.data?.end_at || '',
-      subject: event.data?.subject || '',
-      format: event.data?.format || 'online',
-      price: event.data?.price || '',
-      notes: event.data?.notes || '',
-    });
+      setPaymentForm({
+        amount: event.data?.amount || '',
+        method: event.data?.method || 'cash',
+        paid_at: event.data?.paid_at || '',
+        notes: event.data?.notes || '',
+      });
 
-    setShowLessonForm(true);
+      setShowPaymentForm(true);
+    }
   }
 
   async function handleDelete(id, type) {
@@ -182,16 +194,29 @@ export default function StudentDetailPage() {
     }
 
     try {
-      await postJson('/api/payments', {
-        student_id: Number(id),
-        amount: Number(paymentForm.amount),
-        method: paymentForm.method,
-        paid_at: new Date(paymentForm.paid_at).toISOString(),
-        notes: paymentForm.notes,
-      });
+      if (editingPaymentId) {
+        await fetchJson(`/api/payments/${editingPaymentId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            amount: Number(paymentForm.amount),
+            method: paymentForm.method,
+            paid_at: new Date(paymentForm.paid_at).toISOString(),
+            notes: paymentForm.notes,
+          }),
+        });
+      } else {
+        await postJson('/api/payments', {
+          student_id: Number(id),
+          amount: Number(paymentForm.amount),
+          method: paymentForm.method,
+          paid_at: new Date(paymentForm.paid_at).toISOString(),
+          notes: paymentForm.notes,
+        });
+      }
 
       await loadTimeline();
       setPaymentForm(initialPaymentForm);
+      setEditingPaymentId(null);
       setShowPaymentForm(false);
     } catch (err) {
       setPaymentError(err.message);
