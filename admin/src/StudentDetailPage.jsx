@@ -112,12 +112,20 @@ export default function StudentDetailPage() {
     setIsSubmittingLesson(true);
     setLessonError('');
 
+    const studentIdFromRoute = id || null;
+
+    if (!studentIdFromRoute) {
+      setLessonError('student_id is required');
+      setIsSubmittingLesson(false);
+      return;
+    }
+
     try {
       if (editingLessonId) {
         await fetchJson(`/api/lessons/${editingLessonId}`, {
           method: 'PUT',
           body: JSON.stringify({
-            student_id: Number(id),
+            student_id: studentIdFromRoute,
             start_at: new Date(lessonForm.start_at).toISOString(),
             end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
             subject: lessonForm.subject,
@@ -128,7 +136,7 @@ export default function StudentDetailPage() {
         });
       } else {
         await postJson('/api/lessons', {
-          student_id: Number(id),
+          student_id: studentIdFromRoute,
           start_at: new Date(lessonForm.start_at).toISOString(),
           end_at: lessonForm.end_at ? new Date(lessonForm.end_at).toISOString() : null,
           subject: lessonForm.subject,
@@ -212,6 +220,14 @@ export default function StudentDetailPage() {
     setIsSubmittingPayment(true);
     setPaymentError('');
 
+    const studentIdFromRoute = id || null;
+
+    if (!studentIdFromRoute) {
+      setPaymentError('student_id is required');
+      setIsSubmittingPayment(false);
+      return;
+    }
+
     if (!paymentForm.amount || Number(paymentForm.amount) <= 0) {
       setPaymentError('Сумма должна быть больше 0');
       setIsSubmittingPayment(false);
@@ -231,7 +247,7 @@ export default function StudentDetailPage() {
         });
       } else {
         await postJson('/api/payments', {
-          student_id: Number(id),
+          student_id: studentIdFromRoute,
           amount: Number(paymentForm.amount),
           method: paymentForm.method,
           paid_at: new Date(paymentForm.paid_at).toISOString(),
