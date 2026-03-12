@@ -24,7 +24,7 @@ async function createLesson(req, res, next) {
 
     const { rows } = await pool.query(
       `INSERT INTO lessons (student_id, start_at, end_at, subject, format, status, price, notes)
-       VALUES ($1, $2, $3, $4, $5, COALESCE($6, 'planned'), $7, $8)
+       VALUES ($1, $2, $3, $4, $5::lesson_format, COALESCE($6::lesson_status, 'planned'::lesson_status), $7, $8)
        RETURNING *`,
       [student_id, start_at, end_at, subject, format, status, price, notes]
     );

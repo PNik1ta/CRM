@@ -4,7 +4,7 @@ const morgan = require('morgan');
 
 const studentsRoutes = require('./routes/students');
 const lessonsRoutes = require('./routes/lessons');
-const paymentsRoutes = require('./routes/payments');
+const paymentsRoutes = require('./routes/paymentsRoutes');
 const leadsRoutes = require('./routes/leads');
 
 const app = express();

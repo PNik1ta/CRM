@@ -17,7 +17,7 @@ async function createStudent(req, res, next) {
 
     const { rows } = await pool.query(
       `INSERT INTO students (first_name, last_name, phone, email, parent_name, notes, status)
-       VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 'active'))
+       VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::student_status, 'active'::student_status))
        RETURNING *`,
       [first_name, last_name, phone, email, parent_name, notes, status]
     );
