@@ -72,6 +72,25 @@ async function updateStudent(req, res, next) {
   }
 }
 
+async function deleteStudent(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM students WHERE id = $1 RETURNING id',
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function getStudentLessons(req, res, next) {
   try {
     const { id } = req.params;
@@ -137,6 +156,7 @@ module.exports = {
   createStudent,
   getStudentById,
   updateStudent,
+  deleteStudent,
   getStudentLessons,
   getStudentTimeline,
 };

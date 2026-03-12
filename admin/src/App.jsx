@@ -1,4 +1,4 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import StudentsPage from './StudentsPage';
 import StudentDetailPage from './StudentDetailPage';
 
@@ -13,11 +13,6 @@ export default function App() {
       }}
     >
       <h1>CRM Admin</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <Link className="nav-link" to="/students">
-          Ученики
-        </Link>
-      </div>
 
       <Routes>
         <Route path="/" element={<Navigate to="/students" replace />} />

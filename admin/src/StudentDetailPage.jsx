@@ -19,6 +19,10 @@ const initialPaymentForm = {
   notes: '',
 };
 
+function formatMoney(value) {
+  return `${Number(value || 0)} ₼`;
+}
+
 export default function StudentDetailPage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
@@ -51,6 +55,7 @@ export default function StudentDetailPage() {
   const [paymentError, setPaymentError] = useState('');
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const [editingPaymentId, setEditingPaymentId] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   async function loadTimeline() {
     const timelineData = await fetchJson(`/api/students/${id}/timeline`);
@@ -88,6 +93,20 @@ export default function StudentDetailPage() {
     setPaymentForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function closeLessonForm() {
+    setShowLessonForm(false);
+    setLessonForm(initialLessonForm);
+    setEditingLessonId(null);
+    setLessonError('');
+  }
+
+  function closePaymentForm() {
+    setShowPaymentForm(false);
+    setPaymentForm(initialPaymentForm);
+    setEditingPaymentId(null);
+    setPaymentError('');
+  }
+
   async function handleLessonSubmit(event) {
     event.preventDefault();
     setIsSubmittingLesson(true);
@@ -120,9 +139,7 @@ export default function StudentDetailPage() {
       }
 
       await loadTimeline();
-      setLessonForm(initialLessonForm);
-      setEditingLessonId(null);
-      setShowLessonForm(false);
+      closeLessonForm();
     } catch (err) {
       setLessonError(err.message);
     } finally {
@@ -161,26 +178,29 @@ export default function StudentDetailPage() {
     }
   }
 
-  async function handleDelete(id, type) {
-    const confirmed = window.confirm('Удалить запись?');
+  function handleDelete(itemId, type) {
+    setPendingDelete({ itemId, type });
+  }
 
-    if (!confirmed) {
+  async function confirmDelete() {
+    if (!pendingDelete) {
       return;
     }
 
-    if (!['lesson', 'payment'].includes(type)) {
+    if (!['lesson', 'payment'].includes(pendingDelete.type)) {
       alert('Неизвестный тип события');
       return;
     }
 
     const endpoint =
-      type === 'lesson'
-        ? `/api/lessons/${id}`
-        : `/api/payments/${id}`;
+      pendingDelete.type === 'lesson'
+        ? `/api/lessons/${pendingDelete.itemId}`
+        : `/api/payments/${pendingDelete.itemId}`;
 
     try {
       await fetchJson(endpoint, { method: 'DELETE' });
       await loadTimeline();
+      setPendingDelete(null);
     } catch (err) {
       alert('Ошибка удаления записи');
       console.error(err);
@@ -220,9 +240,7 @@ export default function StudentDetailPage() {
       }
 
       await loadTimeline();
-      setPaymentForm(initialPaymentForm);
-      setEditingPaymentId(null);
-      setShowPaymentForm(false);
+      closePaymentForm();
     } catch (err) {
       setPaymentError(err.message);
     } finally {
@@ -243,14 +261,15 @@ export default function StudentDetailPage() {
   }
 
   return (
+    <>
     <div>
       <div className="breadcrumb">
-        <Link to="/students">Ученики</Link> / {getStudentDisplayName(student)}
+        CRM Admin / Ученики / {getStudentDisplayName(student)}
       </div>
 
       <div style={{ marginBottom: '12px' }}>
         <Link className="back-link" to="/students">
-          ← Назад к списку
+          ← Назад
         </Link>
       </div>
 
@@ -277,20 +296,20 @@ export default function StudentDetailPage() {
         >
           <div><strong>Lessons:</strong> {lessonCount}</div>
           <div><strong>Payments:</strong> {paymentCount}</div>
-          <div><strong>Total lessons cost:</strong> {totalLessonsCost}</div>
-          <div><strong>Total paid:</strong> {totalPaid}</div>
+          <div><strong>Total lessons cost:</strong> {formatMoney(totalLessonsCost)}</div>
+          <div><strong>Total paid:</strong> {formatMoney(totalPaid)}</div>
         </div>
         <div style={{ marginTop: '20px' }}>
           <h3>Финансы ученика</h3>
-          <div>Всего уроков: {totalLessonsCost}</div>
-          <div>Оплачено: {totalPaid}</div>
+          <div>Всего уроков: {formatMoney(totalLessonsCost)}</div>
+          <div>Оплачено: {formatMoney(totalPaid)}</div>
           <div
             style={{
               color: debt > 0 ? 'red' : 'green',
               fontWeight: 'bold',
             }}
           >
-            {debt > 0 ? 'Долг' : 'Переплата'}: {Math.abs(debt)}
+            {debt > 0 ? 'Долг' : 'Переплата'}: {formatMoney(Math.abs(debt))}
           </div>
         </div>
       </div>
@@ -332,6 +351,13 @@ export default function StudentDetailPage() {
 
       {showLessonForm && (
         <form onSubmit={handleLessonSubmit} style={{ marginTop: '12px' }}>
+          <div className="form-header">
+            <strong>{editingLessonId ? 'Редактировать урок' : 'Создать урок'}</strong>
+            <button className="icon-button" type="button" onClick={closeLessonForm} aria-label="Закрыть форму урока">
+              ✕
+            </button>
+          </div>
+
           <div className="form-group">
             <label className="form-label" htmlFor="start_at">Дата начала (start_at)</label>
             <input className="input"
@@ -378,9 +404,12 @@ export default function StudentDetailPage() {
             <input className="input" id="notes" name="notes" value={lessonForm.notes} onChange={handleLessonChange} />
           </div>
 
-          <div style={{ marginTop: '10px' }}>
+          <div style={{ marginTop: '10px', display: 'flex', gap: 8 }}>
             <button className="button" type="submit" disabled={isSubmittingLesson}>
               {isSubmittingLesson ? 'Сохранение...' : 'Сохранить урок'}
+            </button>
+            <button className="button button-secondary" type="button" onClick={closeLessonForm}>
+              Отмена
             </button>
           </div>
 
@@ -390,6 +419,13 @@ export default function StudentDetailPage() {
 
       {showPaymentForm && (
         <form onSubmit={handlePaymentSubmit} style={{ marginTop: '12px' }}>
+          <div className="form-header">
+            <strong>{editingPaymentId ? 'Редактировать оплату' : 'Создать оплату'}</strong>
+            <button className="icon-button" type="button" onClick={closePaymentForm} aria-label="Закрыть форму оплаты">
+              ✕
+            </button>
+          </div>
+
           <div className="form-group">
             <label className="form-label" htmlFor="amount">Сумма (amount)</label>
             <input className="input"
@@ -439,9 +475,12 @@ export default function StudentDetailPage() {
             />
           </div>
 
-          <div style={{ marginTop: '10px' }}>
+          <div style={{ marginTop: '10px', display: 'flex', gap: 8 }}>
             <button className="button" type="submit" disabled={isSubmittingPayment}>
               {isSubmittingPayment ? 'Сохранение...' : 'Сохранить оплату'}
+            </button>
+            <button className="button button-secondary" type="button" onClick={closePaymentForm}>
+              Отмена
             </button>
           </div>
 
@@ -470,5 +509,21 @@ export default function StudentDetailPage() {
         )}
       </div>
     </div>
+    {pendingDelete && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content card">
+            <div style={{ marginBottom: 16 }}>Вы уверены, что хотите удалить?</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="button button-secondary" type="button" onClick={() => setPendingDelete(null)}>
+                Отмена
+              </button>
+              <button className="button button-danger" type="button" onClick={confirmDelete}>
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

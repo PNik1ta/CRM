@@ -4,6 +4,7 @@ const {
   createStudent,
   getStudentById,
   updateStudent,
+  deleteStudent,
   getStudentLessons,
   getStudentTimeline,
 } = require('../controllers/studentsController');
@@ -16,5 +17,6 @@ router.get('/:id/lessons', getStudentLessons);
 router.get('/:id/timeline', getStudentTimeline);
 router.get('/:id', getStudentById);
 router.patch('/:id', updateStudent);
+router.delete('/:id', deleteStudent);
 
 module.exports = router;
