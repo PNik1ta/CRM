@@ -1,3 +1,9 @@
+## Quick Start
+
+If you just want to run the project locally, read this guide:
+
+RUN_PROJECT.md
+
 # CRM for Private Teacher
 
 A minimal single-user CRM for one teacher.
