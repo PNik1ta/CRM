@@ -1,0 +1,53 @@
+/* Card */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow);
+}
+
+
+/* Button */
+
+.button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.button:hover {
+  background: var(--primary-hover);
+}
+
+
+/* Danger button */
+
+.button-danger {
+  background: var(--danger);
+}
+
+.button-danger:hover {
+  opacity: 0.9;
+}
+
+
+/* Input */
+
+.input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
