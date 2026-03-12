@@ -1,0 +1,7 @@
+{
+  "name": "crm-workspace",
+  "private": true,
+  "scripts": {
+    "dev:docker": "docker compose up --build"
+  }
+}

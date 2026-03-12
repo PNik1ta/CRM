@@ -93,3 +93,33 @@ A minimal single-user CRM for one teacher.
 - No complex multi-user roles.
 - No microservices.
 - Easy to run locally or on one small VPS.
+
+## 5. Run with Docker Compose
+
+From the repository root, run:
+
+```bash
+docker compose up --build
+```
+
+
+Alternative shortcut from repository root:
+
+```bash
+npm run dev:docker
+```
+
+Services:
+- `postgres` on `localhost:5432`
+- `backend` (Express API) on `localhost:3000`
+- `admin` (React + Vite) on `localhost:5173`
+
+Database schema is initialized automatically from:
+- `schema.sql`
+- `002_schema_improvements.sql`
+- `003_student_activity_indexes.sql`
+
+Docker dev behavior:
+- Postgres has a healthcheck (`pg_isready`) and backend waits for DB readiness before start.
+- Backend and admin mount source folders as volumes for hot reload during development.
+

@@ -1,5 +1,15 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+function withApiBase(url) {
+  if (/^https?:\/\//.test(url)) {
+    return url;
+  }
+
+  return `${API_URL}${url}`;
+}
+
 export async function requestJson(url, options = {}) {
-  const response = await fetch(url, {
+  const response = await fetch(withApiBase(url), {
     headers: {
       'Content-Type': 'application/json',
       ...(options.headers || {}),
