@@ -35,6 +35,44 @@ async function createLesson(req, res, next) {
   }
 }
 
+
+async function updateLesson(req, res, next) {
+  try {
+    const { id } = req.params;
+    const {
+      start_at,
+      end_at,
+      subject,
+      format,
+      price,
+      notes,
+    } = req.body;
+
+    const { rows } = await pool.query(
+      `
+      UPDATE lessons
+      SET start_at=$1,
+          end_at=$2,
+          subject=$3,
+          format=$4,
+          price=$5,
+          notes=$6
+      WHERE id=$7
+      RETURNING *
+      `,
+      [start_at, end_at, subject, format, price, notes, id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function deleteLesson(req, res, next) {
   try {
     const { id } = req.params;
@@ -57,5 +95,6 @@ async function deleteLesson(req, res, next) {
 module.exports = {
   getLessons,
   createLesson,
+  updateLesson,
   deleteLesson,
 };
