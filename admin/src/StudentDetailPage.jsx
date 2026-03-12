@@ -54,7 +54,12 @@ export default function StudentDetailPage() {
 
   async function loadTimeline() {
     const timelineData = await fetchJson(`/api/students/${id}/timeline`);
-    setTimeline(timelineData);
+
+    const sortedTimeline = [...timelineData].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+
+    setTimeline(sortedTimeline);
   }
 
   useEffect(() => {
