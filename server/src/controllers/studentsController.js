@@ -1,4 +1,5 @@
 const pool = require('../db/pool');
+const { STUDENT_STATUSES, normalizeString, assertEnumValue } = require('../utils/validation');
 
 async function getStudents(req, res, next) {
   try {
@@ -15,11 +16,20 @@ async function createStudent(req, res, next) {
   try {
     const { first_name, last_name, phone, email, parent_name, notes, status } = req.body;
 
+    if (!normalizeString(first_name)) {
+      return res.status(400).json({ error: 'first_name is required' });
+    }
+
+    const statusError = assertEnumValue(status, STUDENT_STATUSES, 'status');
+    if (statusError) {
+      return res.status(400).json({ error: statusError });
+    }
+
     const { rows } = await pool.query(
       `INSERT INTO students (first_name, last_name, phone, email, parent_name, notes, status)
        VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::student_status, 'active'::student_status))
        RETURNING *`,
-      [first_name, last_name, phone, email, parent_name, notes, status]
+      [normalizeString(first_name), normalizeString(last_name), normalizeString(phone), normalizeString(email), normalizeString(parent_name), normalizeString(notes), status]
     );
 
     res.status(201).json(rows[0]);
@@ -48,6 +58,15 @@ async function updateStudent(req, res, next) {
     const { id } = req.params;
     const { first_name, last_name, phone, email, parent_name, notes, status } = req.body;
 
+    if (first_name !== undefined && !normalizeString(first_name)) {
+      return res.status(400).json({ error: 'first_name cannot be empty' });
+    }
+
+    const statusError = assertEnumValue(status, STUDENT_STATUSES, 'status');
+    if (statusError) {
+      return res.status(400).json({ error: statusError });
+    }
+
     const { rows } = await pool.query(
       `UPDATE students
        SET first_name = COALESCE($1, first_name),
@@ -59,7 +78,7 @@ async function updateStudent(req, res, next) {
            status = COALESCE($7, status)
        WHERE id = $8
        RETURNING *`,
-      [first_name, last_name, phone, email, parent_name, notes, status, id]
+      [normalizeString(first_name), normalizeString(last_name), normalizeString(phone), normalizeString(email), normalizeString(parent_name), normalizeString(notes), status, id]
     );
 
     if (!rows.length) {
@@ -138,7 +157,10 @@ async function getStudentTimeline(req, res, next) {
       id: payment.id,
       type: 'payment',
       date: payment.paid_at,
-      data: payment,
+      data: {
+        ...payment,
+        notes: payment.note ?? payment.notes ?? null,
+      },
     }));
 
     const timeline = [...lessonEvents, ...paymentEvents].sort(
