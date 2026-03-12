@@ -34,6 +34,21 @@ export default function StudentDetailPage() {
 
     return acc;
   }, 0);
+  const lessons = timeline.filter((event) => event.type === 'lesson');
+  const payments = timeline.filter((event) => event.type === 'payment');
+
+  const lessonCount = lessons.length;
+  const paymentCount = payments.length;
+
+  const totalLessonsCost = lessons.reduce(
+    (sum, lesson) => sum + Number(lesson.data?.price || 0),
+    0,
+  );
+
+  const totalPaid = payments.reduce(
+    (sum, payment) => sum + Number(payment.data?.amount || 0),
+    0,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showLessonForm, setShowLessonForm] = useState(false);
@@ -191,6 +206,18 @@ export default function StudentDetailPage() {
         <div><strong>Телефон:</strong> {student.phone || '-'}</div>
         <div><strong>Email:</strong> {student.email || '-'}</div>
         <div><strong>Статус:</strong> {student.status || '-'}</div>
+        <div
+          style={{
+            marginTop: '12px',
+            borderTop: '1px solid #eee',
+            paddingTop: '10px',
+          }}
+        >
+          <div><strong>Lessons:</strong> {lessonCount}</div>
+          <div><strong>Payments:</strong> {paymentCount}</div>
+          <div><strong>Total lessons cost:</strong> {totalLessonsCost}</div>
+          <div><strong>Total paid:</strong> {totalPaid}</div>
+        </div>
         <div
           style={{
             marginTop: '10px',
