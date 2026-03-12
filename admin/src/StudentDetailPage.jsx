@@ -12,6 +12,13 @@ const initialLessonForm = {
   notes: '',
 };
 
+const initialPaymentForm = {
+  amount: '',
+  method: 'cash',
+  paid_at: '',
+  notes: '',
+};
+
 export default function StudentDetailPage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
@@ -22,6 +29,10 @@ export default function StudentDetailPage() {
   const [lessonForm, setLessonForm] = useState(initialLessonForm);
   const [isSubmittingLesson, setIsSubmittingLesson] = useState(false);
   const [lessonError, setLessonError] = useState('');
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
+  const [paymentError, setPaymentError] = useState('');
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
   async function loadTimeline() {
     const timelineData = await fetchJson(`/api/students/${id}/timeline`);
@@ -49,6 +60,11 @@ export default function StudentDetailPage() {
     setLessonForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function handlePaymentChange(event) {
+    const { name, value } = event.target;
+    setPaymentForm((prev) => ({ ...prev, [name]: value }));
+  }
+
   async function handleLessonSubmit(event) {
     event.preventDefault();
     setIsSubmittingLesson(true);
@@ -72,6 +88,36 @@ export default function StudentDetailPage() {
       setLessonError(err.message);
     } finally {
       setIsSubmittingLesson(false);
+    }
+  }
+
+  async function handlePaymentSubmit(event) {
+    event.preventDefault();
+    setIsSubmittingPayment(true);
+    setPaymentError('');
+
+    if (!paymentForm.amount || Number(paymentForm.amount) <= 0) {
+      setPaymentError('Сумма должна быть больше 0');
+      setIsSubmittingPayment(false);
+      return;
+    }
+
+    try {
+      await postJson('/api/payments', {
+        student_id: Number(id),
+        amount: Number(paymentForm.amount),
+        method: paymentForm.method,
+        paid_at: new Date(paymentForm.paid_at).toISOString(),
+        notes: paymentForm.notes,
+      });
+
+      await loadTimeline();
+      setPaymentForm(initialPaymentForm);
+      setShowPaymentForm(false);
+    } catch (err) {
+      setPaymentError(err.message);
+    } finally {
+      setIsSubmittingPayment(false);
     }
   }
 
@@ -112,6 +158,22 @@ export default function StudentDetailPage() {
           }}
         >
           Добавить урок
+        </button>
+
+        <button
+          type="button"
+          style={{ marginLeft: '8px' }}
+          onClick={() => {
+            setShowPaymentForm((prev) => {
+              if (!prev) {
+                setPaymentError('');
+              }
+
+              return !prev;
+            });
+          }}
+        >
+          Добавить оплату
         </button>
       </div>
 
@@ -176,6 +238,71 @@ export default function StudentDetailPage() {
           </div>
 
           {lessonError && <div style={{ marginTop: '8px' }}>Ошибка создания урока: {lessonError}</div>}
+        </form>
+      )}
+
+      {showPaymentForm && (
+        <form onSubmit={handlePaymentSubmit} style={{ marginTop: '12px' }}>
+          <div>
+            <label htmlFor="amount">Сумма (amount)</label>
+            <br />
+            <input
+              id="amount"
+              name="amount"
+              type="number"
+              min="0"
+              value={paymentForm.amount}
+              onChange={handlePaymentChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="method">Метод (method)</label>
+            <br />
+            <select
+              id="method"
+              name="method"
+              value={paymentForm.method}
+              onChange={handlePaymentChange}
+            >
+              <option value="cash">Наличные</option>
+              <option value="card">Карта</option>
+              <option value="transfer">Перевод</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="paid_at">Дата оплаты (paid_at)</label>
+            <br />
+            <input
+              id="paid_at"
+              name="paid_at"
+              type="datetime-local"
+              value={paymentForm.paid_at}
+              onChange={handlePaymentChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="payment_notes">Заметки (notes)</label>
+            <br />
+            <textarea
+              id="payment_notes"
+              name="notes"
+              value={paymentForm.notes}
+              onChange={handlePaymentChange}
+            />
+          </div>
+
+          <div style={{ marginTop: '10px' }}>
+            <button type="submit" disabled={isSubmittingPayment}>
+              {isSubmittingPayment ? 'Сохранение...' : 'Сохранить оплату'}
+            </button>
+          </div>
+
+          {paymentError && <div style={{ marginTop: '8px' }}>Ошибка создания оплаты: {paymentError}</div>}
         </form>
       )}
 
