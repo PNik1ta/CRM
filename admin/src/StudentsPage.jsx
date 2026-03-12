@@ -18,6 +18,16 @@ export default function StudentsPage() {
   const [formData, setFormData] = useState(initialForm);
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const query = search.trim().toLowerCase();
+
+  const filteredStudents = query
+    ? students.filter((student) => {
+        const name = `${student.first_name || ''} ${student.last_name || ''}`.toLowerCase();
+        return name.includes(query);
+      })
+    : students;
 
   async function loadStudents() {
     try {
@@ -72,6 +82,21 @@ export default function StudentsPage() {
       <button type="button" onClick={() => setShowCreateForm((prev) => !prev)}>
         Создать ученика
       </button>
+
+      <div style={{ marginTop: '12px' }}>
+        <input
+          type="text"
+          placeholder="Поиск ученика..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          style={{
+            marginBottom: '12px',
+            padding: '6px',
+            width: '100%',
+            maxWidth: '300px',
+          }}
+        />
+      </div>
 
       {showCreateForm && (
         <form onSubmit={handleSubmit} style={{ marginTop: '12px', marginBottom: '16px' }}>
@@ -129,7 +154,7 @@ export default function StudentsPage() {
           </tr>
         </thead>
         <tbody>
-          {students.map((student) => (
+          {filteredStudents.map((student) => (
             <tr key={student.id}>
               <td>
                 <Link to={`/students/${student.id}`}>{getStudentDisplayName(student)}</Link>
@@ -139,6 +164,12 @@ export default function StudentsPage() {
               <td>{student.status || '-'}</td>
             </tr>
           ))}
+
+          {filteredStudents.length === 0 && (
+            <tr>
+              <td colSpan="4">Ничего не найдено</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
