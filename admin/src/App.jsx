@@ -4,7 +4,14 @@ import StudentDetailPage from './StudentDetailPage';
 
 export default function App() {
   return (
-    <div style={{ padding: '16px', fontFamily: 'sans-serif' }}>
+    <div
+      style={{
+        maxWidth: '900px',
+        margin: '40px auto',
+        padding: '0 20px',
+        fontFamily: 'sans-serif',
+      }}
+    >
       <h1>CRM Admin</h1>
       <div style={{ marginBottom: '12px' }}>
         <Link to="/students">Ученики</Link>
