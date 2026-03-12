@@ -23,6 +23,17 @@ export default function StudentDetailPage() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
   const [timeline, setTimeline] = useState([]);
+  const balance = timeline.reduce((acc, event) => {
+    if (event.type === 'lesson') {
+      return acc - Number(event.data?.price || 0);
+    }
+
+    if (event.type === 'payment') {
+      return acc + Number(event.data?.amount || 0);
+    }
+
+    return acc;
+  }, 0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showLessonForm, setShowLessonForm] = useState(false);
@@ -91,6 +102,33 @@ export default function StudentDetailPage() {
     }
   }
 
+
+  async function handleDelete(id, type) {
+    const confirmed = window.confirm('Удалить запись?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    if (!['lesson', 'payment'].includes(type)) {
+      alert('Неизвестный тип события');
+      return;
+    }
+
+    const endpoint =
+      type === 'lesson'
+        ? `/api/lessons/${id}`
+        : `/api/payments/${id}`;
+
+    try {
+      await fetchJson(endpoint, { method: 'DELETE' });
+      await loadTimeline();
+    } catch (err) {
+      alert('Ошибка удаления записи');
+      console.error(err);
+    }
+  }
+
   async function handlePaymentSubmit(event) {
     event.preventDefault();
     setIsSubmittingPayment(true);
@@ -139,11 +177,38 @@ export default function StudentDetailPage() {
         <Link to="/students">← Назад к списку</Link>
       </div>
 
-      <h2>{getStudentDisplayName(student)}</h2>
-      <div><strong>Телефон:</strong> {student.phone || '-'}</div>
-      <div><strong>Email:</strong> {student.email || '-'}</div>
-      <div><strong>Статус:</strong> {student.status || '-'}</div>
+      <h3>Student card</h3>
+      <div
+        style={{
+          border: '1px solid #ddd',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          background: '#fafafa',
+        }}
+      >
+        <h2 style={{ marginTop: 0 }}>{getStudentDisplayName(student)}</h2>
+        <div><strong>Телефон:</strong> {student.phone || '-'}</div>
+        <div><strong>Email:</strong> {student.email || '-'}</div>
+        <div><strong>Статус:</strong> {student.status || '-'}</div>
+        <div
+          style={{
+            marginTop: '10px',
+            fontWeight: 'bold',
+            color: balance < 0 ? 'red' : balance > 0 ? 'green' : 'black',
+          }}
+        >
+          Баланс: {balance}
+        </div>
 
+        {balance < 0 && (
+          <div style={{ color: 'red', marginTop: '4px' }}>
+            Долг ученика: {Math.abs(balance)}
+          </div>
+        )}
+      </div>
+
+      <h3>Actions</h3>
       <div style={{ marginTop: '16px' }}>
         <button
           type="button"
@@ -306,13 +371,13 @@ export default function StudentDetailPage() {
         </form>
       )}
 
-      <h3 style={{ marginTop: '20px' }}>Таймлайн активности</h3>
+      <h3 style={{ marginTop: '20px' }}>Timeline</h3>
       {timeline.length === 0 ? (
         <div>Событий пока нет.</div>
       ) : (
         <ul style={{ paddingLeft: '20px' }}>
-          {timeline.map((event, index) => (
-            <TimelineItem key={`${event.type}-${event.date}-${index}`} event={event} />
+          {timeline.map((event) => (
+            <TimelineItem key={`${event.type}-${event.id}`} event={event} onDelete={handleDelete} />
           ))}
         </ul>
       )}

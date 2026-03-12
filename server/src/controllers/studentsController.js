@@ -109,12 +109,14 @@ async function getStudentTimeline(req, res, next) {
     ]);
 
     const lessonEvents = lessonsResult.rows.map((lesson) => ({
+      id: lesson.id,
       type: 'lesson',
       date: lesson.start_at,
       data: lesson,
     }));
 
     const paymentEvents = paymentsResult.rows.map((payment) => ({
+      id: payment.id,
       type: 'payment',
       date: payment.paid_at,
       data: payment,

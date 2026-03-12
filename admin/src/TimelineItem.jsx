@@ -1,4 +1,4 @@
-export default function TimelineItem({ event }) {
+export default function TimelineItem({ event, onDelete }) {
   if (event.type === 'lesson') {
     return (
       <li style={{ marginBottom: '12px' }}>
@@ -7,6 +7,12 @@ export default function TimelineItem({ event }) {
         <div>Предмет: {event.data?.subject || '-'}</div>
         <div>Формат: {event.data?.format || '-'}</div>
         <div>Цена: {event.data?.price ?? '-'}</div>
+        <button
+          type="button"
+          onClick={() => onDelete && onDelete(event.id, 'lesson')}
+        >
+          Удалить
+        </button>
       </li>
     );
   }
@@ -18,6 +24,12 @@ export default function TimelineItem({ event }) {
         <div>Дата: {new Date(event.data?.paid_at || event.date).toLocaleString()}</div>
         <div>Сумма: {event.data?.amount ?? '-'}</div>
         <div>Метод: {event.data?.method || '-'}</div>
+        <button
+          type="button"
+          onClick={() => onDelete && onDelete(event.id, 'payment')}
+        >
+          Удалить
+        </button>
       </li>
     );
   }
