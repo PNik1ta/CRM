@@ -118,6 +118,23 @@ export default function StudentDetailPage() {
   }
 
 
+  function handleEdit(event) {
+    if (event.type !== 'lesson') {
+      return;
+    }
+
+    setLessonForm({
+      start_at: event.data?.start_at || '',
+      end_at: event.data?.end_at || '',
+      subject: event.data?.subject || '',
+      format: event.data?.format || 'online',
+      price: event.data?.price || '',
+      notes: event.data?.notes || '',
+    });
+
+    setShowLessonForm(true);
+  }
+
   async function handleDelete(id, type) {
     const confirmed = window.confirm('Удалить запись?');
 
@@ -404,7 +421,12 @@ export default function StudentDetailPage() {
       ) : (
         <ul style={{ paddingLeft: '20px' }}>
           {timeline.map((event) => (
-            <TimelineItem key={`${event.type}-${event.id}`} event={event} onDelete={handleDelete} />
+            <TimelineItem
+              key={`${event.type}-${event.id}`}
+              event={event}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
           ))}
         </ul>
       )}
